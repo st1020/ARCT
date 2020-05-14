@@ -1,0 +1,124 @@
+<h3>TTS语音合成</h3>
+<h5>语言引擎</h5>
+<form id="tts-engines-form">
+    <div id="tts-engines" class="btn-group btn-group-toggle active" data-toggle="buttons">
+    </div>
+</form>
+<h5 style="margin-top: 0.5rem">音频流</h5>
+<div class="btn-group btn-group-toggle active" data-toggle="buttons">
+    <label class="btn btn-secondary active">
+        <input type="radio" name="options" id="stream-NOTIFICATION" checked>通知
+    </label>
+    <label class="btn btn-secondary">
+        <input type="radio" name="options" id="stream-ALARM">闹铃
+    </label>
+    <label class="btn btn-secondary">
+        <input type="radio" name="options" id="stream-MUSIC">媒体
+    </label>
+    <label class="btn btn-secondary">
+        <input type="radio" name="options" id="stream-RING">响铃
+    </label>
+    <label class="btn btn-secondary">
+        <input type="radio" name="options" id="stream-SYSTEM">系统
+    </label>
+    <label class="btn btn-secondary">
+        <input type="radio" name="options" id="stream-VOICE_CALL">通话
+    </label>
+</div>
+<div class="input-group mt-2 mb-3">
+    <input type="text" class="form-control" id="tts-text" placeholder="进行朗读的文本">
+    <div class="input-group-append">
+        <button id="run-tts" class="btn btn-primary" type="button">开始朗读</button>
+    </div>
+</div>
+
+<h3>拨打电话</h3>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="call-number" placeholder="电话号码">
+    <div class="input-group-append">
+        <button id="run-call" class="btn btn-primary" type="button">拨打电话</button>
+    </div>
+</div>
+
+<h3>退出</h3>
+<div class="btn-group">
+    <button id="logout" type="button" class="btn btn-primary">注销登录</button>
+    <button id="exit" type="button" class="btn btn-primary">关闭服务端程序</button>
+</div>
+
+<script>
+    $.get("tts",function(data,status){
+        if (status == "error") {
+            alert("Error: "+status+": "+data);
+        }else{
+            var ttsList = '';
+            for (x in data) {
+                var ttsList = ttsList + '<label class="btn btn-secondary"><input type="radio" name="stream" value="' + data[x]['name'] + '">' + data[x]['label'] + '</label>';
+            }
+            $('#tts-engines').html(ttsList);
+        }
+    })
+    $("#run-tts").click(function(){
+        if ($('#tts-engines-form').serializeArray().length != 0) {
+            if ($("#stream-NOTIFICATION").is(':checked')) {
+                stream = 'NOTIFICATION'
+            }else if ($("#stream-ALARM").is(':checked')) {
+                stream = 'ALARM'
+            }else if ($("#stream-MUSIC").is(':checked')) {
+                stream = 'MUSIC'
+            }else if ($("#stream-RING").is(':checked')) {
+                stream = 'RING'
+            }else if ($("#stream-SYSTEM").is(':checked')) {
+                stream = 'SYSTEM'
+            }else if ($("#stream-VOICE_CALL").is(':checked')) {
+                stream = 'VOICE_CALL'
+            }
+            $.post("tts",{
+                token:$.cookie('token'),
+                engine:$('#tts-engines-form').serializeArray()[0]['value'],
+                text:$("#tts-text").val(),
+                stream:stream
+            },function(data,status){
+                if (data == 'success') {
+                    alert('完成');
+                }else if (data == 'error') {
+                    alert('运行失败');
+                }else if (data == 'fault') {
+                    alert('验证失败');
+                }
+            })
+        }else{
+            alert('请选择语言引擎！');
+        }
+    });
+    $("#run-call").click(function(){
+        if ($('#call-number').val().length != 0) {
+            $.post("call",{
+                token:$.cookie('token'),
+                number:$('#call-number').val()
+            },function(data,status){
+                if (data == 'success') {
+                    alert('完成');
+                }else if (data == 'error') {
+                    alert('运行失败');
+                }else if (data == 'fault') {
+                    alert('验证失败');
+                }
+            })
+        }else{
+            alert('请输入电话号码！');
+        }
+    });
+    $("#exit").click(function(){
+        $.post("quit",{
+            token:$.cookie('token')
+        })
+        alert('再见！')
+        //window.close();
+        window.location.reload(true);
+    });
+    $("#logout").click(function(){
+        $.removeCookie('token');
+        window.location.reload(true);
+    });
+</script>

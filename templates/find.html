@@ -1,0 +1,311 @@
+<div id="info" class="alert alert-info">
+    <strong id="info-strong">空闲</strong><p id="info-text" style="display:inline"> 等待操作</p>
+</div>
+<h3>短距离寻找</h3>
+
+<form>
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary">
+            <input type="checkbox" name="options" id="vibrate">振动
+        </label>
+        <label class="btn btn-secondary">
+            <input type="checkbox" name="options" id="torch">闪光
+        </label>
+        <label class="btn btn-secondary">
+            <input type="checkbox" name="options" id="rang">铃声
+        </label>
+    </div>
+    <div class="btn-group btn-group-toggle active" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+            <input type="radio" name="options" id="15s" checked>15 s
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="options" id="30s">30 s
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="options" id="60s">60 s
+        </label>
+    </div>
+</form>
+<button id="run-search" type="button" class="btn btn-primary" style="margin-bottom: 0.25rem;margin-top: 0.5rem">运行</button>
+<p>* 请注意：如果您的手机正在连接耳机，那么铃声可能会从耳机发出。</p>
+
+<h3>长距离寻找</h3>
+<h4>通知栏消息</h4>
+<form>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">标题</span>
+        </div>
+        <input type="text" class="form-control" id="notification-title" placeholder="通知栏消息标题">
+    </div>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">内容</span>
+        </div>
+        <input type="text" class="form-control" id="notification-content" placeholder="通知栏消息内容">
+    </div>
+</form>
+<button id="run-notification" type="button" class="btn btn-primary" style="margin-bottom: 0.25rem;margin-top: 0.5rem">显示消息</button>
+<h4 style="margin-top: 0.5rem">定位</h4>
+<form>
+    <div class="btn-group btn-group-toggle active" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+            <input type="radio" name="options" id="network-location" checked>网络
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="options" id="gps-location">GPS
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="options" id="passive-location">被动
+        </label>
+    </div>
+</form>
+<button id="run-location" type="button" class="btn btn-primary" style="margin-bottom: 0.25rem;margin-top: 0.5rem">开始定位</button>
+<p id="location-result">坐标：</p>
+<h4 style="margin-top: 0.5rem">录音</h4>
+<form>
+    <div class="btn-group btn-group-toggle active" data-toggle="buttons">
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="run-record">● 开始录音
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="stop-record">■ 结束录音
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="play-record">▶ 播放录音
+        </label>
+    </div>
+</form>
+<audio id="record" controls="controls">您的浏览器不支持 audio 标签。</audio>
+<h4 style="margin-top: 0.5rem">拍照</h4>
+<form>
+    <div class="btn-group btn-group-toggle active" data-toggle="buttons">
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="run-photo">拍照
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" name="options" id="show-photo">显示照片
+        </label>
+    </div>
+</form>
+<img id="photo" class="img-fluid" alt="Photo">
+
+<script>
+    $("#location-result,#photo,#record").hide();
+    $("#stop-record,#play-record").attr("disabled","disabled");
+    $("#run-search").click(function(){
+        if ($("#15s").is(':checked')) {
+            time = 15
+        }else if ($("#30s").is(':checked')) {
+            time = 30
+        }else if ($("#60s").is(':checked')) {
+            time = 60
+        }
+        $.post("search",{
+            token:$.cookie('token'),
+            vibrate:$("#vibrate").is(':checked'),
+            torch:$("#torch").is(':checked'),
+            rang:$("#rang").is(':checked'),
+            time:time
+        },function(data,status){
+            if (data == 'success') {
+                getInfo = setInterval(function() {
+                    $.get("search-status",function(data,status){
+                        if (status == "error") {
+                            alert("Error: "+status+": "+data);
+                        }else{
+                            if (data == 0) {
+                                $('#info-strong').text('空闲');
+                                $('#info-text').text(' 等待操作');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-info");
+                            }else if (data == 1) {
+                                $('#info-strong').text('运行中');
+                                $('#info-text').text(' 正常');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-warning");
+                            }else if (data == 2) {
+                                $('#info-strong').text('运行中');
+                                $('#info-text').text(' 出现错误');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-warning");
+                            }else if (data == 3) {
+                                $('#info-strong').text('完成');
+                                $('#info-text').text(' 正常');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-success");
+                                clearInterval(getInfo);
+                            }else if (data == 4) {
+                                $('#info-strong').text('完成');
+                                $('#info-text').text(' 出现错误');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-danger");
+                                clearInterval(getInfo);
+                            }
+                        }
+                    });
+                }, 1000);
+            }else if (data == 'fault') {
+                alert('验证失败')
+            }
+        })
+    });
+    $("#run-location").click(function(){
+        if ($("#network-location").is(':checked')) {
+            type = 'network'
+        }else if ($("#gps-location").is(':checked')) {
+            type = 'gps'
+        }else if ($("#passive-location").is(':checked')) {
+            type = 'passive'
+        }
+        $.post("location",{
+            token:$.cookie('token'),
+            type:type
+        },function(data,status){
+            if (data == 'success') {
+                getInfo = setInterval(function() {
+                    $.get("search-status",function(data,status){
+                        if (status == "error") {
+                            alert("Error: "+status+": "+data);
+                        }else{
+                            if (data == 0) {
+                                $('#info-strong').text('空闲');
+                                $('#info-text').text(' 等待操作');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-info");
+                            }else if (data == 1) {
+                                $('#info-strong').text('定位中');
+                                $('#info-text').text(' 正常');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-warning");
+                            }else if (data == 3) {
+                                $('#info-strong').text('完成');
+                                $('#info-text').text(' 正常');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-success");
+                                clearInterval(getInfo);
+                                $.getJSON("location-status",function(data,status,xhr){
+                                    if (status == "error"){
+                                        alert("Error: "+xhr.status+": "+xhr.statusText);
+                                    }else{
+                                        $('#location-result').text('坐标：'+data[0]+','+data[1]);
+                                        $('#location-result').show();
+                                    }
+                                })
+                            }else if (data == 4) {
+                                $('#info-strong').text('完成');
+                                $('#info-text').text(' 出现错误');
+                                $('#info').removeClass();
+                                $("#info").addClass("alert alert-danger");
+                                clearInterval(getInfo);
+                            }
+                        }
+                    });
+                }, 1000);
+            }else if (data == 'fault') {
+                alert('验证失败')
+            }
+        })
+    });
+    $("#run-record,#stop-record").click(function(){
+        document.getElementById('record').pause();
+        $("#record").hide();
+        if ($("#run-record").is(':checked')) {
+            type = 'run'
+            $("#play-record").attr("disabled","disabled");
+            $("#stop-record").removeAttr("disabled");
+        }else if ($("#stop-record").is(':checked')) {
+            type = 'stop'
+            $('#play-record').removeAttr("disabled");
+        }
+        $.post("record",{
+            token:$.cookie('token'),
+            type:type
+        },function(data,status){
+            if (data == 0) {
+                $('#info-strong').text('空闲');
+                $('#info-text').text(' 等待操作');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-info");
+            }else if (data == 1) {
+                $('#info-strong').text('录音中');
+                $('#info-text').text(' 正常');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-warning");
+            }else if (data == 3) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 正常');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-success");
+            }else if (data == 4) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 出现错误');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-danger");
+            }else if (data == 'fault') {
+                alert('验证失败')
+            }
+        })
+    });
+    $("#play-record").click(function(){
+        $("#record").attr("src","/record");
+        document.getElementById('record').load();
+        $("#record").show();
+    });
+    $("#run-photo").click(function(){
+        $("#photo").hide();
+        $.post("photo",{
+            token:$.cookie('token')
+        },function(data,status){
+            if (data == 0) {
+                $('#info-strong').text('空闲');
+                $('#info-text').text(' 等待操作');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-info");
+            }else if (data == 3) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 正常');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-success");
+            }else if (data == 4) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 出现错误');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-danger");
+            }else if (data == 'fault') {
+                alert('验证失败')
+            }
+        })
+    });
+    $("#show-photo").click(function(){
+        $("#photo").attr("src","/photo/"+Math.random());
+        $("#photo").show();
+    });
+    $("#run-notification").click(function(){
+        $.post("notification",{
+            token:$.cookie('token'),
+            title:$("#notification-title").val(),
+            content:$("#notification-content").val()
+        },function(data,status){
+            if (data == 0) {
+                $('#info-strong').text('空闲');
+                $('#info-text').text(' 等待操作');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-info");
+            }else if (data == 3) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 正常');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-success");
+            }else if (data == 4) {
+                $('#info-strong').text('完成');
+                $('#info-text').text(' 出现错误');
+                $('#info').removeClass();
+                $("#info").addClass("alert alert-danger");
+            }else if (data == 'fault') {
+                alert('验证失败')
+            }
+        })
+    });
+</script>

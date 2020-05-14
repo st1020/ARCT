@@ -1,0 +1,283 @@
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">欢迎您！</h4>
+    <p>您可以在这里远程管理您的手机。</p>
+    {% if hitokoto %}
+    <hr>
+    <p id="hitokoto" class="mb-0">:D 获取中...</p>
+    <p id="hitofrom" style="font-style: italic; text-align: right;">:D 获取一言中...</p>
+    {% endif %}
+    {% if motd %}
+    <hr>
+    <p id="hitokoto" class="mb-0">{{ motd }}</p>
+    {% endif %}
+</div>
+<h3>系统状态</h3>
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header"><b>内存占用</b></div>
+            <div class="card-body">
+                <p style="margin-bottom: 0.25rem;display: inline-table">物理内存</p>
+                <div class="progress">
+                    <div class="progress-bar" id="memory" style="width:0%"></div>
+                </div>
+                <p style="margin-bottom: 0.25rem;margin-top: 0.5rem">交换内存</p>
+                <div class="progress">
+                    <div class="progress-bar" id="swap" style="width:0%"></div>
+                </div>
+            </div> 
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header"><b>储存占用</b></div>
+            <div class="card-body">
+                <p style="margin-bottom: 0.25rem">内部储存</p>
+                <div class="progress">
+                    <div class="progress-bar" id="sdcard" style="width:0%"></div>
+                </div>
+                <p style="margin-bottom: 0.25rem;margin-top: 0.5rem">根目录</p>
+                <div class="progress">
+                    <div class="progress-bar" id="root" style="width:0%"></div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+<h3 style="margin-top: 1rem;">详细信息</h3>
+<table id="status" class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">CPU 属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>CPU 核心数量</td>
+            <td id="cpu-count">0</td>
+        </tr>
+        <tr>
+            <td>CPU 架构</td>
+            <td id="cpu-arch">0</td>
+        </tr>
+        <tr>
+            <td>CPU 型号</td>
+            <td id="cpu-hardware">0</td>
+        </tr>
+        <tr>
+            <td>BogoMIPS</td>
+            <td id="BogoMIPS">0</td>
+        </tr>
+    </tbody>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">系统属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>系统架构</td>
+            <td id="sys-arch">0</td>
+        </tr>
+        <tr>
+            <td>系统位数</td>
+            <td id="sys-bits">0</td>
+        </tr>
+        <tr>
+            <td>内核版本</td>
+            <td id="sys-platform">0</td>
+        </tr>
+        <tr>
+            <td>内核编译版本</td>
+            <td id="sys-version">0</td>
+        </tr>
+    </tbody>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">网络属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>网络运营商</td>
+            <td id="net-operator">0</td>
+        </tr>
+        <tr>
+            <td>运营商代码</td>
+            <td id="net-operator-code">0</td>
+        </tr>
+        <tr>
+            <td>网络强度</td>
+            <td id="net-dbm">0</td>
+        </tr>
+        <tr>
+            <td>WIFI 连接状态</td>
+            <td id="wifi-state">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>WIFI SSID</td>
+            <td id="wifi-ssid">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>WIFI BSSID</td>
+            <td id="wifi-bssid">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>内网IP地址</td>
+            <td id="wifi-ip">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>设备MAC地址</td>
+            <td id="wifi-mac">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>WIFI 频率</td>
+            <td id="wifi-frequency">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>WIFI 连接速度</td>
+            <td id="wifi-speed">0</td>
+        </tr>
+        <tr class="wifi">
+            <td>WIFI 信号强度</td>
+            <td id="wifi-rssi">0</td>
+        </tr>
+    </tbody>
+    <thead class="thead-light" id="camera">
+        <tr>
+            <th scope="col">相机属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody id="camera">
+        <tr class="camera-back">
+            <td>后置摄像头 焦距</td>
+            <td id="camera-back-focal">0</td>
+        </tr>
+        <tr class="camera-back">
+            <td>后置摄像头 物理尺寸</td>
+            <td id="camera-back-size">0</td>
+        </tr>
+        <tr class="camera-front">
+            <td>前置摄像头 焦距</td>
+            <td id="camera-front-focal">0</td>
+        </tr>
+        <tr class="camera-front">
+            <td>前置摄像头 物理尺寸</td>
+            <td id="camera-front-size">0</td>
+        </tr>
+    </tbody>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">电池属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>健康状态</td>
+            <td id="battery-health">0</td>
+        </tr>
+        <tr>
+            <td>电量</td>
+            <td id="battery-percentage">0</td>
+        </tr>
+        <tr>
+            <td>充电状态</td>
+            <td id="battery-status">0</td>
+        </tr>
+        <tr>
+            <td>电池温度</td>
+            <td id="battery-temperature">0</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script>
+    {% if hitokoto %}
+    fetch('https://v1.hitokoto.cn')
+    .then(response => response.json())
+    .then(data => {
+        const hitokoto = document.getElementById('hitokoto')
+        const hitofrom = document.getElementById('hitofrom')
+        hitokoto.innerText = data.hitokoto
+        hitofrom.innerText = '——' + data.from
+    })
+    .catch(console.error)
+    {% endif %}
+    getMemory();
+    getSystem();
+    getNetwork();
+    getBattery();
+    getInfo = setInterval(function() {getMemory();getNetwork();getBattery();}, {{ refresh }});
+    function getMemory() {
+        $.getJSON("memory",function(data,status,xhr){
+            if (status == "error"){
+                alert("Error: "+xhr.status+": "+xhr.statusText);
+            }else{
+                $("#memory").text(data['MemPercent']+' %');
+                $("#memory").css("width",data['MemPercent']+'%');
+                $("#swap").text(data['SwapPercent']+' %');
+                $("#swap").css("width",data['SwapPercent']+'%');
+                $("#sdcard").text(data['SdcardPercent']+' %');
+                $("#sdcard").css("width",data['SdcardPercent']+'%');
+                $("#root").text(data['RootPercent']+' %');
+                $("#root").css("width",data['RootPercent']+'%');
+            }
+        })
+    }
+    function getSystem() {
+        $.getJSON("system",function(data,status,xhr){
+            if (status == "error"){
+                alert("Error: "+xhr.status+": "+xhr.statusText);
+            }else{
+                var x;
+                for (x in data) {
+                    $("#" + x).text(data[x]);
+                }
+                if (data['camera-back-focal'] == undefined) {
+                    $('.camera-back').hide();
+                }
+                if (data['camera-front-focal'] == undefined) {
+                    $('.camera-front').hide();
+                }
+                if (data['camera-front-focal'] == undefined && data['camera-back-focal'] == undefined) {
+                    $('#camera').hide();
+                }
+            }
+        })
+    }
+    function getNetwork() {
+        $.getJSON("network",function(data,status,xhr){
+            if (status == "error"){
+                alert("Error: "+xhr.status+": "+xhr.statusText);
+            }else{
+                var x;
+                for (x in data) {
+                    $("#" + x).text(data[x]);
+                }
+                if (data['wifi-state'] != 'COMPLETED') {
+                    $('.wifi').hide();
+                }else{
+                    $('.wifi').show();
+                }
+            }
+        })
+    }
+    function getBattery() {
+        $.getJSON("battery",function(data,status,xhr){
+            if (status == "error"){
+                alert("Error: "+xhr.status+": "+xhr.statusText);
+            }else{
+                var x;
+                for (x in data) {
+                    $("#" + x).text(data[x]);
+                }
+            }
+        })
+    }
+</script>

@@ -1,0 +1,81 @@
+<div class="input-group mb-2">
+    <input id="folder" type="text" class="form-control" readonly="readonly">
+    <div class="input-group-append">
+        <button id="back" class="btn btn-primary" type="button">返回</button>
+        <button id="upload" class="btn btn-primary" type="button">上传</button>
+    </div>
+</div>
+<div id="file" class="list-group">
+</div>
+<input type="file" name="fileUpload" id="fileUpload" style="display:none" onchange="upload()">
+<script>
+    getDir('/sdcard/');
+    function getDir(file){
+        $.post("file",{
+            token:$.cookie('token'),
+            file:file
+        },function(data,status){
+            if (data == 'error') {
+                alert('无法访问该目录！');
+            }else{
+                var fileList = '';
+                for (x in data) {
+                    if (data[x]['type'] == 'folder') {
+                        var fileList = fileList + '<a href="javascript:getFolder(\'' + data[x]['name'] + '\');" class="list-group-item list-group-item-action">📁 ' + data[x]['name'] + '</a>';
+                    }else{
+                        var fileList = fileList + '<a href="javascript:getFile(\'' + data[x]['name'] + '\');" class="list-group-item list-group-item-action">📄 ' + data[x]['name'] + '</a>';
+                    }
+                }
+                $('#file').html(fileList);
+                $("#folder").val(file);
+            }
+        })
+    }
+    function getFolder(file){
+        getDir($("#folder").val() + file + '/');
+    }
+    function getFile(file){
+        $.post("file",{
+            token:$.cookie('token'),
+            file:$("#folder").val() + file
+        },function(data,status){
+            window.location.href = '/download/' + data;
+            //window.open('/download/' + data)
+        })
+    }
+    $("#back").click(function(){
+        file = $("#folder").val();
+        file = file.slice(0, file.lastIndexOf('/', file.length-2)+1);
+        getDir(file);
+    })
+    $("#upload").click(function(){
+        $('#fileUpload').trigger('click');
+    })
+    function upload(){
+        var formData = new FormData();
+        formData.append("file",$("#fileUpload")[0].files[0]);
+        formData.append("path",$("#folder").val());
+        formData.append("token",$.cookie('token'));
+        $.ajax({
+            url:'upload',
+            type:'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            cache:false,
+            success:function(data){
+                if (data == 'fault') {
+                    alert('验证失败');
+                }else if (data == 'errorPath'){
+                    alert('错误：目录不存在');
+                }else if (data == 'errorExistence'){
+                    alert('错误：存在同名文件');
+                }else if (data == 'errorSave'){
+                    alert('错误：保存失败');
+                }else if (data == 'success'){
+                    alert('上传成功！');
+                }
+            }
+        })
+    }
+</script>

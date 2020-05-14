@@ -1,0 +1,135 @@
+<h3>WIFI</h3>
+<div class="btn-group" style="margin-bottom: 0.5rem">
+    <button id="wifi-on" type="button" class="btn btn-primary">开启 WIFI</button>
+    <button id="wifi-off" type="button" class="btn btn-primary">关闭 WIFI</button>
+</div>
+<button id="refresh" type="button" class="btn btn-primary" style="margin-bottom: 0.5rem">刷新</button>
+<table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">SSID</th>
+            <th scope="col">RSSI (dBm)</th>
+            <th scope="col">频率 (MHz)</th>
+            <th scope="col">信道带宽 (MHz)</th>
+        </tr>
+    </thead>
+    <tbody id="wifi">
+    </tbody>
+</table>
+<h3>移动网络基站</h3>
+<h4>当前基站</h3>
+<table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">属性</th>
+            <th scope="col">值</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>类型</td>
+            <td id="cell-type">0</td>
+        </tr>
+        <tr>
+            <td>等级</td>
+            <td id="cell-level">0</td>
+        </tr>
+        <tr>
+            <td>信号强度</td>
+            <td id="cell-strength">0</td>
+        </tr>
+        <tr>
+            <td>CI (Cell Identity)</td>
+            <td id="cell-ci">0</td>
+        </tr>
+        <tr>
+            <td>PCI (Physical-layer Cell Identity)</td>
+            <td id="cell-pci">0</td>
+        </tr>
+        <tr>
+            <td>TAC (Tracking Area Code)</td>
+            <td id="cell-tac">0</td>
+        </tr>
+        <tr>
+            <td>MCC (Mobile Country Code)</td>
+            <td id="cell-mcc">0</td>
+        </tr>
+        <tr>
+            <td>MNC (Mobile Network Code)</td>
+            <td id="cell-mnc">0</td>
+        </tr>
+    </tbody>
+</table>
+<h4>全部基站</h3>
+<table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">类型</th>
+            <th scope="col">等级</th>
+            <th scope="col">信号强度</th>
+            <th scope="col">PCI</th>
+        </tr>
+    </thead>
+    <tbody id="cell">
+    </tbody>
+</table>
+<script>
+    getWifi()
+    getCell()
+    $("#refresh").click(function(){getWifi();getCell();})
+    $("#wifi-on").click(function(){
+        $.post("wifi",{
+            token:$.cookie('token'),
+            type:'on'
+        },setTimeout(getWifi,2000))
+    })
+    $("#wifi-off").click(function(){
+        $.post("wifi",{
+            token:$.cookie('token'),
+            type:'off'
+        },setTimeout(getWifi,2000))
+    })
+    function getWifi() {
+        $.post("wifi",{
+            token:$.cookie('token'),
+            type:'info'
+        },function(data,status){
+            var wifiTable = '';
+            for (x in data) {
+                var wifiTable = wifiTable + '<tr>'
+                + '<td>' + data[x]['ssid'] + '</td>'
+                + '<td>' + data[x]['rssi'] + '</td>'
+                + '<td>' + data[x]['frequency_mhz'] + '</td>'
+                + '<td>' + data[x]['channel_bandwidth_mhz'] + '</td>'
+                + '</tr>';
+            }
+            $('#wifi').html(wifiTable);
+        })
+    }
+    function getCell() {
+        $.post("cell",{
+            token:$.cookie('token')
+        },function(data,status){
+            var cellTable = '';
+            for (x in data) {
+                var cellTable = cellTable + '<tr>'
+                + '<td>' + data[x]['type'] + '</td>'
+                + '<td>' + data[x]['level'] + '</td>'
+                + '<td>' + data[x]['dbm'] + ' dBm ' + data[x]['asu'] + ' asu</td>'
+                + '<td>' + data[x]['pci'] + '</td>'
+                + '</tr>';
+                if (data[x]['registered']) {
+                    $("#cell-type").text(data[x]['type']);
+                    $("#cell-level").text(data[x]['level']);
+                    $("#cell-strength").text(data[x]['dbm'] + ' dBm ' + data[x]['asu'] + ' asu');
+                    $("#cell-ci").text(data[x]['ci']);
+                    $("#cell-pci").text(data[x]['pci']);
+                    $("#cell-tac").text(data[x]['tac']);
+                    $("#cell-mcc").text(data[x]['mcc']);
+                    $("#cell-mnc").text(data[x]['mnc']);
+                }
+            }
+            $('#cell').html(cellTable);
+        })
+    }
+</script>

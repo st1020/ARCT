@@ -1,0 +1,62 @@
+<div class="text-center">
+    <form id="form-signin" class="form-signin" action="/signin" method="post">
+        <h1>ARCT</h1>
+        <h2>登录</h2>
+        <div id="warning" class="alert alert-warning alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>错误！</strong><p id="warning-text" style="display:inline"></p>
+        </div>
+        <label for="inputUsername" class="sr-only">Username</label>
+        <input name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <div class="checkbox mb-3">
+            <label><input id="remember" type="checkbox" value="remember-me">下次自动登录</label>
+        </div>
+        <button id="buttonsignin" class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+    </form>
+</div>
+<script>
+var options = {
+    beforeSerialize: modifySubmitData,
+    success: successSubmit,
+    error: function(data, status){alert("Error: "+status+": "+data);},
+    dataType: null,
+    clearForm: true,
+    resetForm: true,
+};
+$('#warning').hide();
+$('header').hide();
+$('#form-signin').submit(function(e){
+    e.preventDefault();
+    $('#form-signin').ajaxSubmit(options);
+})
+function modifySubmitData(){
+    $("#inputPassword").val(md5($("#inputPassword").val()));
+    var remember = $("#remember").is(':checked');
+    return true;
+}
+function successSubmit(data, status) {
+    if (data == 'errorUsername') {
+        $('#warning').show();
+        $('#warning-text').text('用户不存在！');
+        setTimeout(function(){$('#warning').hide();},3000);
+    }else if (data == 'errorPassword'){
+        $('#warning').show();
+        $('#warning-text').text('密码错误！');
+        setTimeout(function(){$('#warning').hide();},3000);
+    }else{
+        if (remember) {
+            $.cookie('token', data, { expires: 7, path: '/' });
+        }else{
+            $.cookie('token', data, { path: '/' });
+        };
+        $("#loginCSS").remove();
+        $('header').show()
+        $("#main").load("home",function(responseTxt,statusTxt,xhr){
+            if (statusTxt == "error")
+                alert("Error: "+xhr.status+": "+xhr.statusText);
+        });
+    }
+}
+</script>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN" class="h-100">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        {% block meta %}<!-- block meta -->{% endblock %}
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+        <title>首页 - ARCT</title>
+        <style>
+            main > .container-xl {
+                padding-top: 4.5rem;
+            }
+            .footer {
+                background-color: #f5f5f5;
+            }
+            .btn:focus,
+            .btn:active:focus,
+            .btn.active:focus,
+            .btn.focus,
+            .btn:active.focus,
+            .btn.active.focus {
+                outline: none!important;
+                box-shadow:none!important;
+            }
+        </style>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/popper.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/jquery.cookie.js"></script>
+        <script src="/static/js/jquery.form.min.js"></script>
+        <script src="/static/js/md5.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                if ($.cookie('token')) {
+                    $.post("check",{token:$.cookie('token')},
+                    function(data,status){
+                        if (data == 'success') {
+                            $("#main").load("home",function(responseTxt,statusTxt,xhr){
+                                if (statusTxt == "error")
+                                    alert("Error: "+xhr.status+": "+xhr.statusText);
+                            });
+                        }else if (data == 'timeout') {
+                            $.removeCookie('token', { path: '/' });
+                            alert('您的认证信息已超时，请重新登录！')
+                            signin()
+                        }else if (data == 'fault') {
+                            $.removeCookie('token', { path: '/' });
+                            alert('您的认证信息错误，请重新登录！')
+                            signin()
+                        }
+                    })
+                }else{
+                    signin()
+                }
+                function signin() {
+                    $("head").append("<link>");
+                    var toolbarCss = $("head").children(":last");
+                    toolbarCss.attr({
+                        id: "loginCSS",
+                        rel: "stylesheet",
+                        type: "text/css",
+                        href:  "/static/css/signin.css"
+                    });
+                    $("#main").load("signin",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                }
+                $("#nav-home").click(function() {
+                    $('title').text('首页 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-home").addClass('active');
+                    $("#main").load("home",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $("#nav-find").click(function() {
+                    $('title').text('查找手机 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-find").addClass('active');
+                    $("#main").load("find",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $("#nav-net").click(function() {
+                    $('title').text('网络连接 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-net").addClass('active');
+                    $("#main").load("net",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $("#nav-file").click(function() {
+                    $('title').text('文件管理 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-file").addClass('active');
+                    $("#main").load("file",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $("#nav-call").click(function() {
+                    $('title').text('联系人 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-call").addClass('active');
+                    $("#main").load("call",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $("#nav-others").click(function() {
+                    $('title').text('其他设置 - ARCT');
+                    $(".active").removeClass('active');
+                    $("#nav-others").addClass('active');
+                    $("#main").load("others",function(responseTxt,statusTxt,xhr){
+                        if (statusTxt == "error")
+                            alert("Error: "+xhr.status+": "+xhr.statusText);
+                    });
+                })
+                $(".nav-item").click(function() {
+                    $(".navbar-toggler").click();
+                    clearInterval(getInfo);
+                })
+            });
+        </script>
+        {% block head %}<!-- head -->{% endblock %}
+    </head>
+    
+    <body class="d-flex flex-column h-100">
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <div class="container-xl">
+                    <a class="navbar-brand" href="#">ARCT</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <div class="navbar-nav mr-auto">
+                            <a id="nav-home" class="nav-item nav-link active" href="#">主页</a>
+                            <a id="nav-find" class="nav-item nav-link">查找手机</a>
+                            <a id="nav-net" class="nav-item nav-link">网络连接</a>
+                            <a id="nav-file" class="nav-item nav-link">文件管理</a>
+                            <a id="nav-call" class="nav-item nav-link">联系人</a>
+                            <a id="nav-others" class="nav-item nav-link">其他设置</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main role="main" class="flex-shrink-0">
+            <div id="main" class="container-xl mt-n2 mb-3">
+                {% block content %}<!-- content -->{% endblock %}
+            </div>
+        </main>
+
+        <footer class="footer mt-auto py-3">
+            <div class="container">
+                <span class="text-muted">Copyright St1020</span>
+            </div>
+        </footer>
+    </body>
+
+</html>

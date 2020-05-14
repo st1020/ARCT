@@ -1,0 +1,61 @@
+<div class="input-group mb-2">
+    <input id="search-contact" type="text" class="form-control">
+    <div class="input-group-append">
+        <button id="run-search-contact" class="btn btn-primary" type="button">搜索</button>
+        <button id="output-contact" class="btn btn-primary" type="button">导出为VCF</button>
+    </div>
+</div>
+<ul id="search-contact-result" class="list-group mb-3">
+</ul>
+<ul id="contact" class="list-group">
+</ul>
+<script>
+    $('#search-contact-result').hide();
+    $.post("contact",{
+        token:$.cookie('token')
+    },function(data,status){
+        if (data == 'error') {
+            alert('无法访问联系人！');
+        }else{
+            var contactList = '';
+            for (x in data) {
+                var contactList = contactList + '<li class="list-group-item"><h5>' + data[x]['name'] + '</h5><p class="mb-0 text-muted">' + data[x]['number'] + '</p></li>';
+            }
+            $('#contact').html(contactList);
+        }
+    })
+    $("#run-search-contact").click(function(){
+        if ($("#search-contact").val() != '') {
+            $.post("contact",{
+                token:$.cookie('token')
+            },function(data,status){
+                if (data == 'error') {
+                    alert('无法访问联系人！');
+                }else{
+                    var contactList = '';
+                    for (x in data) {
+                        if (data[x]['name'].indexOf($("#search-contact").val()) != -1 || data[x]['number'].indexOf($("#search-contact").val()) != -1) {
+                            var contactList = contactList + '<li class="list-group-item"><h5>' + data[x]['name'] + '</h5><p class="mb-0 text-muted">' + data[x]['number'] + '</p></li>';
+                        }
+                    }
+                    if (contactList == '') {
+                        alert('找不到联系人！');
+                    }else{
+                        $('#search-contact-result').html(contactList);
+                        $('#search-contact-result').show();
+                    }
+                }
+            })
+        }else{
+            $('#search-contact-result').hide();
+        }
+    })
+    $("#output-contact").click(function(){
+        $.post("vcf",{
+            token:$.cookie('token')
+        },function(data,status){
+            window.location.href = '/download/' + data;
+            //window.open('/download/' + data)
+        })
+    })
+</script>
